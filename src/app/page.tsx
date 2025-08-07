@@ -1,12 +1,16 @@
-import { DarkModeToggle } from '@/components/DarkMode/DarkModeToggle';
 import { Button } from '@/components/ui/button';
 import React from 'react';
+import NextLink from 'next/link';
+import { DarkModeToggle } from '@/components/DarkMode/DarkModeToggle';
 
 const page = () => {
   return (
     <div>
-      <Button>Hello</Button>
-      <DarkModeToggle />
+      <div>Landing page</div>
+      <NextLink href="/auth/login">
+        <Button>Login</Button>
+         <DarkModeToggle />
+      </NextLink>
     </div>
   );
 };
