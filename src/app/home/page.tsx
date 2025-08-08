@@ -1,11 +1,9 @@
-import React from 'react';
+import React from 'react'
 
 const page = () => {
   return (
-    <div>
-      <div>YOU ARE LOGGED IN THATS WHY U CAN SEE THIS PAGE</div>
-    </div>
-  );
-};
+    <div>Authorised page</div>
+  )
+}
 
-export default page;
+export default page

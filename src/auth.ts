@@ -1,43 +1,39 @@
 import NextAuth from 'next-auth';
 import { PrismaAdapter } from '@auth/prisma-adapter';
-import { prisma } from '@/prisma';
-import Google from 'next-auth/providers/google';
+import authConfig from './auth.config';
+import { prisma } from './prisma';
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const {
+  handlers,
+  auth,
+  signIn,
+  signOut,
+} = NextAuth({
   adapter: PrismaAdapter(prisma),
-  providers: [
-    Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      authorization: {
-        params: {
-          scope: [
-            'openid',
-            'email',
-            'profile',
-            'https://www.googleapis.com/auth/gmail.readonly',
-            'https://www.googleapis.com/auth/gmail.modify',
-            'https://www.googleapis.com/auth/gmail.compose',
-            'https://www.googleapis.com/auth/gmail.send',
-          ].join(' '),
-          access_type: 'offline',
-          prompt: 'consent',
-        },
-      },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token;
-        token.refreshToken = account.refresh_token;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      session.accessToken = token.accessToken as string | undefined;
-      session.refreshToken = token.refreshToken as string | undefined;
-      return session;
-    },
+
+  session: { strategy: 'jwt' },
+  ...authConfig,
+
+ callbacks: {
+  async jwt({ token, account }) {
+    if (account) {
+      token.accessToken = account.access_token;
+      token.refreshToken = account.refresh_token;
+    }
+    return token;
   },
+
+  async session({ token, session }) {
+    return {
+      ...session,
+      accessToken: token.accessToken,
+      refreshToken: token.refreshToken,
+      user: {
+        ...session.user,
+        id: token.sub,
+      },
+    };
+  },
+},
+
 });
